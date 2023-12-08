@@ -8,6 +8,5 @@ export const LayoutContainer = styled.div`
 export const MainContainer = styled.main`
   width: 100%;
   max-width: 54rem;
-  margin-top: -5rem;
-
+  margin-top: -7rem;
 `

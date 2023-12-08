@@ -29,15 +29,15 @@ export function UserInfo() {
               <p>{user.bio}</p>
             </UserDetails>
             <UserProfileInfo>
-              <UserProfileInfoItem>
+              {user.username && <UserProfileInfoItem>
                 <i className="fa-brands fa-github"></i> {user.username}
-              </UserProfileInfoItem>
-              <UserProfileInfoItem>
+              </UserProfileInfoItem>}
+              {user.company && <UserProfileInfoItem>
                 <i className="fa-solid fa-building"></i> {user.company}
-              </UserProfileInfoItem>
-              <UserProfileInfoItem>
+              </UserProfileInfoItem>}
+              {user.followers && <UserProfileInfoItem>
                 <i className="fa-solid fa-user-group"></i> {user.followers} Followers
-              </UserProfileInfoItem>
+              </UserProfileInfoItem>}
             </UserProfileInfo>
           </UserProfile>
         </UserProfileContainer>

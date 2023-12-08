@@ -11,4 +11,16 @@ export const HeaderContainer = styled.header`
   background-image: url(${backgroundImage});
   background-repeat: no-repeat;
   background-size: cover;
+
+  a {
+    text-decoration: none;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  img {
+    margin-top: -7rem;
+  }
 `

@@ -2,7 +2,6 @@ import styled from 'styled-components'
 
 export const PageInfoContainer = styled.section`
   width: 54rem;
-  min-height: 10.5rem;
   flex-shrink: 0;
   border-radius: 0.625rem;
   background: ${({theme}) => theme['base-profile']};

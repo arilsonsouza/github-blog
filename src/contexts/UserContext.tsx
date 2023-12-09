@@ -1,6 +1,7 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { createContext } from 'use-context-selector'
 import { api } from '../lib/axios'
+import { formateDateDistanceToNow } from '../utils/formatter'
 
 const LOCAL_STORAGE_KEY = '@github-blog:search-state-1.0.0'
 const githubUsername = import.meta.env.VITE_GITHUB_USERNAME
@@ -22,6 +23,16 @@ export interface PostType {
   createdAt: string
 }
 
+type PostDetailType = {
+  title: string
+  comments: number
+  createdAt: string
+  username: string
+  url: string
+  body: string
+}
+
+
 type PostTypeApiResponse = {
   number: number
   title: string
@@ -32,11 +43,14 @@ type PostTypeApiResponse = {
 type UserContextType = {
   user: UserInfoType,
   posts: PostType[],
+  post: PostDetailType,
   searchQuery: string,
   isLoadingUserInfo: boolean,
   isLoadingPosts: boolean,
+  isLoadingPost: boolean,
   postsCounter: number,
   fetchPosts: (query: string) => Promise<void>,
+  fetchPost: (postId: string | undefined) => Promise<void>,
   handleSearchQueryChange: (value: string) => void
 }
 
@@ -53,9 +67,11 @@ export const UserContext = createContext({} as UserContextType)
 export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<UserInfoType>({} as UserInfoType)
   const [posts, setPosts] = useState<PostType[]>([])
+  const [post, setPost] = useState<PostDetailType>({} as PostDetailType)
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(false)
   const [isLoadingPosts, setIsLoadingPosts] = useState(false)
+  const [isLoadingPost, setIsLoadingPost] = useState(false)
   const [postsCounter, setPostsCounter] = useState(0)
 
   const fetchUser = useCallback(async () => {
@@ -112,6 +128,33 @@ export function UserProvider({ children }: UserProviderProps) {
     setIsLoadingPosts(false)
   }, [])
 
+  const fetchPost = useCallback(async (postId: string | undefined) => {
+    setIsLoadingPost(true)
+    const response = await api.get(
+      `/repos/${githubUsername}/${githubRepo}/issues/${postId}`,
+    )
+    const {
+      title,
+      comments,
+      created_at: createdAt,
+      user,
+      html_url: htmlUrl,
+      body,
+    } = response.data
+
+
+    const fetchedPost: PostDetailType = {
+      title,
+      username: user.login,
+      comments,
+      createdAt: formateDateDistanceToNow(new Date(createdAt)),
+      url: htmlUrl,
+      body,
+    }
+    setPost(fetchedPost)
+    setIsLoadingPost(false)
+  }, [])
+
   useEffect(() => {
     fetchUser()
 
@@ -127,6 +170,7 @@ export function UserProvider({ children }: UserProviderProps) {
   }, [fetchUser, fetchPosts])
 
   const handleSearchQueryChange = (value: string) => setSearchQuery(value)
+
   return (
     <UserContext.Provider
       value={{
@@ -137,7 +181,10 @@ export function UserProvider({ children }: UserProviderProps) {
         postsCounter,
         fetchPosts,
         searchQuery,
-        handleSearchQueryChange
+        handleSearchQueryChange,
+        fetchPost,
+        post,
+        isLoadingPost
       }}
     >
       {children}
